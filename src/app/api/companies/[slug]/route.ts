@@ -24,14 +24,14 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     }
 
     // 2. Perform Server-side SQL Aggregations for Averages and Counts
-    const aggregations = await prisma.compensationRecord.aggregate({
+    const aggregations = await prisma.salary.aggregate({
       where: {
         companyId: company.id
       },
       _avg: {
         baseSalary: true,
-        variablePay: true,
-        equity: true,
+        bonus: true,
+        stock: true,
         totalCompensation: true
       },
       _count: {
@@ -48,10 +48,11 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
         company: {
           id: company.id,
           name: company.name,
-          domain: company.domain,
+          slug: company.slug,
           industry: company.industry,
-          sizeRange: company.sizeRange,
-          verified: company.verified
+          headcountRange: company.headcountRange,
+          foundedYear: company.foundedYear,
+          headquarters: company.headquarters
         },
         stats: {
           medianTotalCompensation: 0,
@@ -74,7 +75,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     const medianTotalCompensation = medianResult[0]?.median || 0;
 
     // 4. Server-side SQL GROUP BY Aggregation for Level Distribution
-    const levelDistributionQuery = await prisma.compensationRecord.groupBy({
+    const levelDistributionQuery = await prisma.salary.groupBy({
       by: ['level'],
       where: {
         companyId: company.id
@@ -95,17 +96,18 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       company: {
         id: company.id,
         name: company.name,
-        domain: company.domain,
+        slug: company.slug,
         industry: company.industry,
-        sizeRange: company.sizeRange,
-        verified: company.verified
+        headcountRange: company.headcountRange,
+        foundedYear: company.foundedYear,
+        headquarters: company.headquarters
       },
       stats: {
         medianTotalCompensation,
         averageTotalCompensation: Number(aggregations._avg.totalCompensation || 0),
         averageBaseSalary: Number(aggregations._avg.baseSalary || 0),
-        averageVariablePay: Number(aggregations._avg.variablePay || 0),
-        averageEquity: Number(aggregations._avg.equity || 0),
+        averageVariablePay: Number(aggregations._avg.bonus || 0),
+        averageEquity: Number(aggregations._avg.stock || 0),
         totalSubmissions
       },
       levelDistribution

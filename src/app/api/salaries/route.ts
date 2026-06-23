@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     // 2. Extract filters
     const query = searchParams.get('query');
     const company = searchParams.get('company');
-    const role = searchParams.get('role') || searchParams.get('jobTitle');
+    const role = searchParams.get('role');
     const location = searchParams.get('location');
     const level = searchParams.get('level');
 
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
           }
         },
         {
-          jobTitle: {
+          role: {
             contains: query.trim(),
             mode: 'insensitive'
           }
@@ -49,16 +49,16 @@ export async function GET(req: NextRequest) {
     }
 
     if (role) {
-      whereClause.jobTitle = {
+      whereClause.role = {
         contains: role.trim(),
-        mode: 'insensitive' // Translates to ILIKE in PostgreSQL
+        mode: 'insensitive'
       };
     }
 
     if (location) {
       whereClause.location = {
         contains: location.trim(),
-        mode: 'insensitive' // Translates to ILIKE in PostgreSQL
+        mode: 'insensitive'
       };
     }
 
@@ -70,13 +70,13 @@ export async function GET(req: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'submittedAt';
     const sortOrder = (searchParams.get('sortOrder') || 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc';
 
-    const validSortFields = ['submittedAt', 'totalCompensation', 'baseSalary', 'yearsOfExperience'];
+    const validSortFields = ['submittedAt', 'totalCompensation', 'baseSalary', 'experienceYears'];
     const orderByField = validSortFields.includes(sortBy) ? sortBy : 'submittedAt';
 
-    // 5. Query DB (Parallel execution for count and data fetch for performance)
+    // 5. Query DB
     const [totalCount, records] = await prisma.$transaction([
-      prisma.compensationRecord.count({ where: whereClause }),
-      prisma.compensationRecord.findMany({
+      prisma.salary.count({ where: whereClause }),
+      prisma.salary.findMany({
         where: whereClause,
         include: {
           company: true
@@ -96,17 +96,15 @@ export async function GET(req: NextRequest) {
       id: record.id,
       company: record.company.name,
       companyId: record.company.id,
-      jobTitle: record.jobTitle,
+      jobTitle: record.role,
       level: record.level,
-      department: record.department,
       baseSalary: Number(record.baseSalary),
-      variablePay: Number(record.variablePay),
-      equity: Number(record.equity),
+      variablePay: Number(record.bonus),
+      equity: Number(record.stock),
       totalCompensation: Number(record.totalCompensation),
       currency: record.currency,
       location: record.location,
-      yearsOfExperience: record.yearsOfExperience,
-      performanceRating: record.performanceRating,
+      yearsOfExperience: record.experienceYears,
       submittedAt: record.submittedAt
     }));
 

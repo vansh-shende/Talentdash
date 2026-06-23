@@ -26,7 +26,7 @@ export default async function CompensationDetailPage({ params }: PageProps) {
   let record = null;
   let dbError = false;
   try {
-    record = await prisma.compensationRecord.findUnique({
+    record = await prisma.salary.findUnique({
       where: { id },
       include: { company: true }
     });
@@ -38,7 +38,7 @@ export default async function CompensationDetailPage({ params }: PageProps) {
   if (dbError) {
     return (
       <div className={styles.container}>
-        <Link href="/compensation" className={styles.backLink}>
+        <Link href="/salaries" className={styles.backLink}>
           <span className="material-symbols-outlined">arrow_back</span>
           Back to Salaries
         </Link>
@@ -73,11 +73,11 @@ export default async function CompensationDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const isVerified = record.company.verified || record.status === 'APPROVED';
+  const isVerified = record.isVerified;
 
   return (
     <div className={styles.container}>
-      <Link href="/compensation" className={styles.backLink}>
+      <Link href="/salaries" className={styles.backLink}>
         <span className="material-symbols-outlined">arrow_back</span>
         Back to Salaries
       </Link>
@@ -88,7 +88,7 @@ export default async function CompensationDetailPage({ params }: PageProps) {
             <h1 className={styles.companyName} style={{ textTransform: 'capitalize' }}>
               {record.company.name}
             </h1>
-            <span className={styles.roleTitle}>{record.jobTitle} &bull; {record.level}</span>
+            <span className={styles.roleTitle}>{record.role} &bull; {record.level}</span>
           </div>
           <div className={styles.tcContainer}>
             <span className={styles.tcLabel}>Total Compensation</span>
@@ -109,13 +109,13 @@ export default async function CompensationDetailPage({ params }: PageProps) {
             </div>
             <div className={styles.metricBox}>
               <div className={styles.metricValue}>
-                {getFormattedCompensation(record.variablePay, record.currency, targetCurrency)}
+                {getFormattedCompensation(record.bonus, record.currency, targetCurrency)}
               </div>
               <div className={styles.metricLabel}>Annual Bonus</div>
             </div>
             <div className={styles.metricBox}>
               <div className={styles.metricValue}>
-                {getFormattedCompensation(record.equity, record.currency, targetCurrency)}
+                {getFormattedCompensation(record.stock, record.currency, targetCurrency)}
               </div>
               <div className={styles.metricLabel}>Stock / Equity (per year)</div>
             </div>
@@ -131,7 +131,7 @@ export default async function CompensationDetailPage({ params }: PageProps) {
             </div>
             <div className={styles.metaItem}>
               <span className={styles.metaLabel}>Experience Required</span>
-              <span className={styles.metaValue}>{record.yearsOfExperience} years</span>
+              <span className={styles.metaValue}>{record.experienceYears} years</span>
             </div>
             <div className={styles.metaItem}>
               <span className={styles.metaLabel}>Industry</span>
@@ -152,8 +152,12 @@ export default async function CompensationDetailPage({ params }: PageProps) {
               </span>
             </div>
             <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>Performance Rating</span>
-              <span className={styles.metaValue}>{record.performanceRating || 'Not Rated'}</span>
+              <span className={styles.metaLabel}>Source</span>
+              <span className={styles.metaValue} style={{ textTransform: 'capitalize' }}>{record.source.toLowerCase().replace('_', ' ')}</span>
+            </div>
+            <div className={styles.metaItem}>
+              <span className={styles.metaLabel}>Confidence Score</span>
+              <span className={styles.metaValue}>{Number(record.confidenceScore) * 100}%</span>
             </div>
           </div>
         </section>

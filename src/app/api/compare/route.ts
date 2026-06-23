@@ -25,11 +25,11 @@ export async function GET(req: NextRequest) {
 
     // 3. Fetch both records in parallel
     const [record1, record2] = await Promise.all([
-      prisma.compensationRecord.findUnique({
+      prisma.salary.findUnique({
         where: { id: id1 },
         include: { company: true }
       }),
-      prisma.compensationRecord.findUnique({
+      prisma.salary.findUnique({
         where: { id: id2 },
         include: { company: true }
       })
@@ -43,14 +43,14 @@ export async function GET(req: NextRequest) {
     // 5. Compute Deltas (Record 2 minus Record 1)
     const base1 = Number(record1.baseSalary);
     const base2 = Number(record2.baseSalary);
-    const var1 = Number(record1.variablePay || 0);
-    const var2 = Number(record2.variablePay || 0);
-    const eq1 = Number(record1.equity || 0);
-    const eq2 = Number(record2.equity || 0);
+    const var1 = Number(record1.bonus || 0);
+    const var2 = Number(record2.bonus || 0);
+    const eq1 = Number(record1.stock || 0);
+    const eq2 = Number(record2.stock || 0);
     const tc1 = Number(record1.totalCompensation);
     const tc2 = Number(record2.totalCompensation);
-    const exp1 = record1.yearsOfExperience;
-    const exp2 = record2.yearsOfExperience;
+    const exp1 = record1.experienceYears;
+    const exp2 = record2.experienceYears;
 
     const deltas = {
       base_delta: base2 - base1,
@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
         record1: {
           id: record1.id,
           company: record1.company.name,
-          jobTitle: record1.jobTitle,
+          jobTitle: record1.role,
           level: record1.level,
           location: record1.location,
           baseSalary: base1,
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
         record2: {
           id: record2.id,
           company: record2.company.name,
-          jobTitle: record2.jobTitle,
+          jobTitle: record2.role,
           level: record2.level,
           location: record2.location,
           baseSalary: base2,

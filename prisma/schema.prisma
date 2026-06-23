@@ -1,24 +1,15 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+datasource db {
+  provider = "postgresql"
+}
 
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql"
-}
-
-enum UserRole {
-  USER
-  ANALYST
-  ADMIN
-}
-
-enum RecordStatus {
-  PENDING
-  APPROVED
-  FLAGGED
+enum Source {
+  CONTRIBUTOR
+  SCRAPED
+  AI_INFERRED
 }
 
 enum Level {
@@ -35,61 +26,45 @@ enum Level {
   IC5
 }
 
-model User {
-  id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email               String               @unique
-  passwordHash        String               @map("password_hash")
-  role                UserRole             @default(USER)
-  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt           DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  compensationRecords CompensationRecord[]
-
-  @@map("users")
-}
-
 model Company {
-  id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                String               @unique
-  normalizedName      String               @unique @map("normalized_name")
-  slug                String               @unique @map("slug")
-  domain              String?              @unique
-  industry            String?
-  sizeRange           String?              @map("size_range")
-  verified            Boolean              @default(false)
-  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt           DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  compensationRecords CompensationRecord[]
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String   @unique
+  slug           String   @unique @map("slug")
+  normalizedName String   @unique @map("normalized_name")
+  industry       String   @default("Technology")
+  headquarters   String   @default("San Francisco, CA")
+  foundedYear    Int?     @map("founded_year")
+  headcountRange String?  @map("headcount_range")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  salaries       Salary[]
 
   @@map("companies")
 }
 
-model CompensationRecord {
-  id                String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId            String?      @map("user_id") @db.Uuid
-  companyId         String       @map("company_id") @db.Uuid
-  jobTitle          String       @map("role")
+model Salary {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId         String   @map("company_id") @db.Uuid
+  role              String   @map("role")
   level             Level
-  department        String
-  baseSalary        Decimal      @map("base_salary") @db.Decimal(12, 2)
-  variablePay       Decimal?     @default(0.00) @map("bonus") @db.Decimal(12, 2)
-  equity            Decimal?     @default(0.00) @map("stock") @db.Decimal(12, 2)
-  totalCompensation Decimal      @map("total_compensation") @db.Decimal(12, 2)
-  currency          String       @default("USD") @db.Char(3)
   location          String
-  yearsOfExperience Int          @map("experience_years")
-  performanceRating String?      @map("performance_rating")
-  status            RecordStatus @default(PENDING)
-  hashDedup         String       @unique @map("hash_dedup") @db.Char(64)
-  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt         DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  submittedAt       DateTime     @default(now()) @map("submitted_at") @db.Timestamptz
+  currency          String   @default("USD") @db.Char(3)
+  experienceYears   Int      @map("experience_years")
+  baseSalary        BigInt   @map("base_salary")
+  bonus             BigInt   @default(0) @map("bonus")
+  stock             BigInt   @default(0) @map("stock")
+  totalCompensation BigInt   @map("total_compensation")
+  source            Source   @default(CONTRIBUTOR)
+  confidenceScore   Decimal  @default(1.0) @map("confidence_score") @db.Decimal(3, 2)
+  isVerified        Boolean  @default(false) @map("is_verified")
+  submittedAt       DateTime @default(now()) @map("submitted_at") @db.Timestamptz
 
-  user    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@index([companyId, level, location])
   @@index([totalCompensation])
   @@index([submittedAt])
+  @@index([location, level])
   @@map("salaries")
 }
 

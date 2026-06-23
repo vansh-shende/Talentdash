@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { getFormattedCompensation } from '@/lib/currency';
 import styles from './companies.module.css';
@@ -23,13 +24,13 @@ export default async function CompaniesPage() {
     SELECT 
       c.id, 
       c.name, 
+      c.slug,
       c.industry, 
-      c.verified,
       COALESCE(percentile_cont(0.5) WITHIN GROUP (ORDER BY r.total_compensation)::numeric, 0)::float as median_tc,
       COUNT(r.id)::int as submission_count
     FROM companies c
     LEFT JOIN salaries r ON c.id = r.company_id
-    GROUP BY c.id, c.name, c.industry, c.verified
+    GROUP BY c.id, c.name, c.slug, c.industry
     ORDER BY submission_count DESC, median_tc DESC;
   `;
 
@@ -47,7 +48,7 @@ export default async function CompaniesPage() {
             const iconName = ICON_MAP[normalizedName] || 'business';
 
             return (
-              <div key={company.id} className={`${styles.companyCard} glass-panel`} id={`company-card-${normalizedName}`}>
+              <Link key={company.id} href={`/companies/${company.slug}`} className={`${styles.companyCard} glass-panel`} id={`company-card-${normalizedName}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className={styles.logoArea}>
                   <div className={styles.icon}>
                     <span className="material-symbols-outlined">{iconName}</span>
@@ -77,7 +78,7 @@ export default async function CompaniesPage() {
                     <span className={styles.statLabel}>Submissions</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })
         ) : (

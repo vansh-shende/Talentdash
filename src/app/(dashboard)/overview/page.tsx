@@ -36,11 +36,11 @@ export default async function OverviewPage() {
   let dbError = false;
 
   try {
-    stats = await prisma.compensationRecord.aggregate({
+    stats = await prisma.salary.aggregate({
       _avg: {
         baseSalary: true,
-        variablePay: true,
-        equity: true,
+        bonus: true,
+        stock: true,
         totalCompensation: true
       },
       _count: true
@@ -57,7 +57,7 @@ export default async function OverviewPage() {
       LIMIT 4;
     `;
 
-    recentSubmissions = await prisma.compensationRecord.findMany({
+    recentSubmissions = await prisma.salary.findMany({
       orderBy: { submittedAt: 'desc' },
       take: 4,
       include: { company: true }
@@ -230,7 +230,7 @@ export default async function OverviewPage() {
               recentSubmissions.map((item) => (
                 <div key={item.id} className={styles.tickerItem}>
                   <div className={styles.tickerJob}>
-                    <span className={styles.jobTitle}>{item.jobTitle}</span>
+                    <span className={styles.jobTitle}>{item.role}</span>
                     <span className={styles.jobMeta} style={{ textTransform: 'capitalize' }}>
                       {item.company.name} &bull; {item.location}
                     </span>

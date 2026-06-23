@@ -78,7 +78,7 @@ export async function GET() {
     log.push('Starting database seed with genuine real-world tech salaries...');
 
     // 1. Clean existing records
-    await prisma.compensationRecord.deleteMany();
+    await prisma.salary.deleteMany();
     await prisma.company.deleteMany();
     await prisma.errorLog.deleteMany();
     log.push('Cleared existing database records.');
@@ -86,11 +86,25 @@ export async function GET() {
     // 2. Insert Companies
     const companyMap: Record<string, string> = {};
     for (const c of companiesData) {
+      // Pick simulated founding year and headquarters
+      let foundedYear = 1998;
+      let headquarters = 'Mountain View, CA';
+      if (c.name === 'meta') { foundedYear = 2004; headquarters = 'Menlo Park, CA'; }
+      if (c.name === 'stripe') { foundedYear = 2010; headquarters = 'San Francisco, CA'; }
+      if (c.name === 'apple') { foundedYear = 1976; headquarters = 'Cupertino, CA'; }
+      if (c.name === 'amazon') { foundedYear = 1994; headquarters = 'Seattle, WA'; }
+      if (c.name === 'netflix') { foundedYear = 1997; headquarters = 'Los Gatos, CA'; }
+      if (c.name === 'uber') { foundedYear = 2009; headquarters = 'San Francisco, CA'; }
+
       const created = await prisma.company.create({
         data: {
-          ...c,
+          name: c.name,
+          slug: c.name.toLowerCase().trim(),
           normalizedName: c.name.toLowerCase().trim(),
-          slug: c.name.toLowerCase().trim()
+          industry: c.industry,
+          headquarters,
+          foundedYear,
+          headcountRange: c.sizeRange
         }
       });
       companyMap[c.name] = created.id;
@@ -105,24 +119,20 @@ export async function GET() {
       // Server-side compute total compensation
       const totalComp = s.base + s.bonus + s.equity;
 
-      // Unique deduplication hash
-      const dedupString = `${companyId}-${s.jobTitle.toLowerCase()}-${dbLevel}-${s.loc.toLowerCase()}-${s.base}-${Date.now()}-${Math.random()}`;
-      const hashDedup = crypto.createHash('sha256').update(dedupString).digest('hex');
-
-      await prisma.compensationRecord.create({
+      await prisma.salary.create({
         data: {
           companyId,
-          jobTitle: s.jobTitle,
+          role: s.jobTitle,
           level: dbLevel,
-          department: 'Engineering',
-          baseSalary: s.base,
-          variablePay: s.bonus,
-          equity: s.equity,
-          totalCompensation: totalComp,
+          baseSalary: BigInt(s.base),
+          bonus: BigInt(s.bonus),
+          stock: BigInt(s.equity),
+          totalCompensation: BigInt(totalComp),
           location: s.loc,
-          yearsOfExperience: s.exp,
-          status: 'APPROVED',
-          hashDedup,
+          experienceYears: s.exp,
+          isVerified: true,
+          source: 'SCRAPED',
+          confidenceScore: 1.0,
           submittedAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000) // Random submission date within last 30 days
         }
       });

@@ -1,48 +1,48 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   /* Color Tokens */
-  --bg-primary: #07080d;
-  --bg-secondary: #0d0f1a;
-  --bg-tertiary: #161829;
-  --bg-glass: rgba(13, 15, 26, 0.75);
-  --bg-glass-hover: rgba(22, 24, 41, 0.85);
+  --bg-primary: #F7F7F7;       /* App Background */
+  --bg-secondary: #FFFFFF;     /* Surface Background */
+  --bg-tertiary: #FFFFFF;      /* Surface Background */
+  --bg-glass: #FFFFFF;         /* Pure White Surface */
+  --bg-glass-hover: #F2F2F2;   /* Hover Surface */
   
-  --border-color: rgba(255, 255, 255, 0.06);
-  --border-color-hover: rgba(255, 255, 255, 0.12);
+  --border-color: #EBEBEB;     /* Light Border */
+  --border-color-hover: #D5D5D5;
   
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-primary: #222222;     /* Deep Text */
+  --text-secondary: #484848;   /* Body Text */
+  --text-muted: #717171;       /* Muted Text */
   
-  --primary: #6366f1; /* Indigo */
-  --primary-hover: #4f46e5;
-  --primary-glow: rgba(99, 102, 241, 0.18);
+  --primary: #FF5A5F;          /* Primary Accent — Coral Red */
+  --primary-hover: #E04B50;
+  --primary-glow: rgba(255, 90, 95, 0.1);
   
-  --secondary: #10b981; /* Emerald */
-  --secondary-glow: rgba(16, 185, 129, 0.15);
+  --secondary: #008A05;        /* Success Green */
+  --secondary-glow: rgba(0, 138, 5, 0.08);
   
-  --accent: #f43f5e; /* Rose */
-  --accent-glow: rgba(244, 63, 94, 0.15);
+  --accent: #D93025;           /* Error Red */
+  --accent-glow: rgba(217, 48, 37, 0.08);
   
-  --warning: #f59e0b; /* Amber */
+  --warning: #FFB400;          /* Warning Orange */
   
-  --shadow-sm: 0 2px 8px -1px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 16px 40px -6px rgba(0, 0, 0, 0.7);
-  --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.15);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 0 transparent;
 
-  --font-display: 'Outfit', sans-serif;
-  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Inter', sans-serif;
+  --font-sans: 'Inter', sans-serif;
   
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   
   --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-slow: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 * {

@@ -22,10 +22,11 @@ interface CompanyProfile {
   company: {
     id: string;
     name: string;
-    domain: string | null;
+    slug: string;
     industry: string | null;
-    sizeRange: string | null;
-    verified: boolean;
+    headcountRange: string | null;
+    foundedYear: number | null;
+    headquarters: string | null;
   };
   stats: CompanyStats;
   levelDistribution: Array<{ level: string; count: number }>;
@@ -60,12 +61,32 @@ export default function ComparePage() {
         const result = await res.json();
         if (result.success && result.data.length > 0) {
           setCompaniesList(result.data);
-          // Set initial defaults
-          setCompA(result.data[0].name);
-          if (result.data.length > 1) {
-            setCompB(result.data[1].name);
+          
+          const urlParams = new URLSearchParams(window.location.search);
+          const c1 = urlParams.get('c1');
+          const c2 = urlParams.get('c2');
+
+          if (c1) {
+            const foundA = result.data.find((c: any) => c.name.toLowerCase() === c1.toLowerCase());
+            if (foundA) setCompA(foundA.name);
+            else setCompA(result.data[0].name);
           } else {
-            setCompB(result.data[0].name);
+            setCompA(result.data[0].name);
+          }
+
+          if (c2) {
+            const foundB = result.data.find((c: any) => c.name.toLowerCase() === c2.toLowerCase());
+            if (foundB) setCompB(foundB.name);
+            else {
+              if (result.data.length > 1) setCompB(result.data[1].name);
+              else setCompB(result.data[0].name);
+            }
+          } else {
+            if (result.data.length > 1) {
+              setCompB(result.data[1].name);
+            } else {
+              setCompB(result.data[0].name);
+            }
           }
         }
       } catch (err: any) {
@@ -112,8 +133,8 @@ export default function ComparePage() {
   const getDeltaColor = (valA: number | undefined, valB: number | undefined) => {
     if (valA === undefined || valB === undefined) return '';
     const diff = valB - valA;
-    if (diff > 0) return '#10b981'; // Green
-    if (diff < 0) return '#ef4444'; // Red
+    if (diff > 0) return 'var(--secondary)'; // Green
+    if (diff < 0) return 'var(--accent)'; // Red
     return 'var(--text-secondary)';
   };
 
@@ -240,7 +261,7 @@ export default function ComparePage() {
                       <span>{ld.level}</span>
                       <span>{ld.count}</span>
                     </div>
-                    <div style={{ height: '6px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div style={{ height: '6px', backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: `${Math.min(100, (ld.count / profileA.stats.totalSubmissions) * 100)}%`, backgroundColor: 'var(--secondary)', borderRadius: '3px' }}></div>
                     </div>
                   </div>
@@ -326,7 +347,7 @@ export default function ComparePage() {
                       <span>{ld.level}</span>
                       <span>{ld.count}</span>
                     </div>
-                    <div style={{ height: '6px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div style={{ height: '6px', backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: `${Math.min(100, (ld.count / profileB.stats.totalSubmissions) * 100)}%`, backgroundColor: 'var(--secondary)', borderRadius: '3px' }}></div>
                     </div>
                   </div>

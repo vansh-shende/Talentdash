@@ -181,7 +181,7 @@ export default function CompensationPage() {
                     })}
                   </td>
                   <td className={styles.td}>
-                    <Link href={`/compensation/${item.id}`} className={styles.btnDetail} id={`btn-view-${item.id}`}>
+                    <Link href={`/salaries/${item.id}`} className={styles.btnDetail} id={`btn-view-${item.id}`}>
                       Details
                       <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>chevron_right</span>
                     </Link>

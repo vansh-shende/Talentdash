@@ -11,7 +11,7 @@ export default function Home() {
           <span>TalentDash</span>
         </div>
         <div className={styles.navLinks}>
-          <Link href="/compensation" className={styles.navItem}>
+          <Link href="/salaries" className={styles.navItem}>
             Salaries
           </Link>
           <Link href="/levels" className={styles.navItem}>
@@ -57,7 +57,7 @@ export default function Home() {
             />
           </div>
           <Link 
-            href="/compensation" 
+            href="/salaries" 
             className={styles.searchBtn}
             id="landing-search-submit"
             title="Search Salaries"

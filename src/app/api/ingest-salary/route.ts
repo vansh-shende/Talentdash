@@ -82,20 +82,25 @@ export async function POST(req: NextRequest) {
       body = await req.json();
     } catch (err: any) {
       console.error("JSON parse error:", err.message);
-      return NextResponse.json({ error: "Malformed JSON payload" }, { status: 400 });
+      return NextResponse.json({ error: true, message: "Malformed JSON payload" }, { status: 400 });
     }
 
     // 1. Zod Validation
     const validation = IngestSchema.safeParse(body);
     if (!validation.success) {
-      const errorMsg = validation.error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      const issue = validation.error.issues[0];
+      const errorMsg = `${issue.path.join('.')}: ${issue.message}`;
       console.error("Validation error:", errorMsg);
       try {
         await logErrorToDb(`Validation failed: ${errorMsg}`, JSON.stringify(validation.error.format()), body);
       } catch (logErr: any) {
         console.error("Failed to log error to DB:", logErr.message);
       }
-      return NextResponse.json({ error: errorMsg }, { status: 400 });
+      return NextResponse.json({ 
+        error: true, 
+        field: issue.path[0] || 'unknown', 
+        message: issue.message 
+      }, { status: 400 });
     }
 
     const {
@@ -107,9 +112,7 @@ export async function POST(req: NextRequest) {
       baseSalary,
       variablePay,
       equity,
-      currency,
-      department,
-      performanceRating
+      currency
     } = validation.data;
 
     // 2. Company Normalization and lookup
@@ -136,16 +139,16 @@ export async function POST(req: NextRequest) {
     const minBase = baseSalary * 0.9;
     const maxBase = baseSalary * 1.1;
 
-    const duplicate = await prisma.compensationRecord.findFirst({
+    const duplicate = await prisma.salary.findFirst({
       where: {
         companyId: company.id,
         level: dbLevel,
-        jobTitle: { equals: jobTitle, mode: 'insensitive' },
+        role: { equals: jobTitle, mode: 'insensitive' },
         location: { equals: location, mode: 'insensitive' },
         submittedAt: { gte: fortyEightHoursAgo },
         baseSalary: {
-          gte: minBase,
-          lte: maxBase
+          gte: BigInt(Math.floor(minBase)),
+          lte: BigInt(Math.floor(maxBase))
         }
       }
     });
@@ -156,32 +159,27 @@ export async function POST(req: NextRequest) {
       try {
         await logErrorToDb(conflictMsg, `Duplicate record ID: ${duplicate.id}`, body);
       } catch (_) {}
-      return NextResponse.json({ error: conflictMsg }, { status: 409 });
+      return NextResponse.json({ error: true, message: conflictMsg }, { status: 409 });
     }
 
     // 4. Server-side Total Compensation Recomputation
     const computedTotalComp = baseSalary + (variablePay ?? 0) + (equity ?? 0);
 
-    // 5. Generate secure unique hash for database constraint
-    const dedupString = `${company.id}-${jobTitle.toLowerCase()}-${dbLevel}-${location.toLowerCase()}-${baseSalary}-${Date.now()}-${Math.random()}`;
-    const hashDedup = crypto.createHash('sha256').update(dedupString).digest('hex');
-
-    // 6. Insert record into database
-    const record = await prisma.compensationRecord.create({
+    // 5. Insert record into database
+    const record = await prisma.salary.create({
       data: {
-        jobTitle,
+        role: jobTitle,
         level: dbLevel,
-        department,
-        baseSalary,
-        variablePay,
-        equity,
-        totalCompensation: computedTotalComp,
+        baseSalary: BigInt(baseSalary),
+        bonus: BigInt(variablePay ?? 0),
+        stock: BigInt(equity ?? 0),
+        totalCompensation: BigInt(computedTotalComp),
         currency,
         location,
-        yearsOfExperience,
-        performanceRating: performanceRating || null,
-        hashDedup,
-        status: 'APPROVED',
+        experienceYears: yearsOfExperience,
+        isVerified: false,
+        source: 'CONTRIBUTOR',
+        confidenceScore: 1.0,
         companyId: company.id,
         submittedAt: new Date()
       },
@@ -195,12 +193,12 @@ export async function POST(req: NextRequest) {
       data: {
         id: record.id,
         company: record.company.name,
-        jobTitle: record.jobTitle,
+        jobTitle: record.role,
         level: record.level,
         location: record.location,
         baseSalary: Number(record.baseSalary),
-        variablePay: Number(record.variablePay),
-        equity: Number(record.equity),
+        variablePay: Number(record.bonus),
+        equity: Number(record.stock),
         totalCompensation: Number(record.totalCompensation),
         submittedAt: record.submittedAt
       }
@@ -211,6 +209,6 @@ export async function POST(req: NextRequest) {
     try {
       await logErrorToDb(`Internal server error during ingestion: ${err.message}`, err.stack, body);
     } catch (_) {}
-    return NextResponse.json({ error: `Internal server error: ${err.message}` }, { status: 500 });
+    return NextResponse.json({ error: true, message: `Internal server error: ${err.message}` }, { status: 500 });
   }
 }
