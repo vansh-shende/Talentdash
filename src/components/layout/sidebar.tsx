@@ -6,7 +6,12 @@ import { usePathname } from 'next/navigation';
 import { SIDEBAR_NAV_ITEMS } from '@/constants/navigation';
 import styles from './sidebar.module.css';
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const [currency, setCurrency] = useState('USD');
 
@@ -28,10 +33,21 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className={styles.sidebar} id="td-sidebar">
+    <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`} id="td-sidebar">
       <div className={styles.logoContainer}>
-        <span className="material-symbols-outlined text-primary">analytics</span>
-        <h1 className={styles.logoText}>Talent<span className={styles.logoHighlight}>Dash</span></h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span className="material-symbols-outlined text-primary">analytics</span>
+          <h1 className={styles.logoText}>Talent<span className={styles.logoHighlight}>Dash</span></h1>
+        </div>
+        {onClose && (
+          <button 
+            className={styles.closeBtn} 
+            onClick={onClose}
+            aria-label="Close menu"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        )}
       </div>
       
       <nav className={styles.navMenu}>

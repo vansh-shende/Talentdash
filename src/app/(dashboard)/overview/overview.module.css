@@ -180,3 +180,24 @@
     transform: translateY(0);
   }
 }
+
+@media (max-width: 768px) {
+  .grid {
+    gap: 16px;
+  }
+
+  .halfWidth, .thirdWidth {
+    grid-column: span 12;
+  }
+
+  .marketValueContainer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .percentileBadge {
+    width: 100%;
+    text-align: center;
+  }
+}

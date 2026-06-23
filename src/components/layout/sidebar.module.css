@@ -202,3 +202,42 @@
   background: var(--bg-tertiary);
   color: var(--text-primary);
 }
+
+/* Responsive & Mobile Menu Overrides */
+.closeBtn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    left: -260px;
+    transition: left var(--transition-normal);
+  }
+  
+  .sidebarOpen {
+    left: 0;
+    box-shadow: var(--shadow-lg), 0 0 40px rgba(0, 0, 0, 0.8);
+  }
+
+  .logoContainer {
+    justify-content: space-between;
+  }
+
+  .closeBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-tertiary);
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+  }
+
+  .closeBtn:hover {
+    color: var(--text-primary);
+    background: var(--bg-glass-hover);
+  }
+}
