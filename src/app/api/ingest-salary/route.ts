@@ -28,7 +28,7 @@ const IngestSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
   jobTitle: z.string().min(1, "Job title is required"),
   level: z.enum(VALID_LEVELS, {
-    errorMap: () => ({ message: "Level must be one of the allowed values: L3 | L4 | L5 | L6 | SDE-I | SDE-II | SDE-III | Staff | Principal | IC4 | IC5" })
+    invalid_type_error: "Level must be one of the allowed values: L3 | L4 | L5 | L6 | SDE-I | SDE-II | SDE-III | Staff | Principal | IC4 | IC5"
   }),
   location: z.string().min(1, "Location is required"),
   yearsOfExperience: z.coerce.number().int().min(0, "Experience cannot be negative").max(50, "Experience cannot be greater than 50 years"),
