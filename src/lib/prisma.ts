@@ -54,7 +54,7 @@ const prismaClientSingleton = () => {
 
   // Otherwise, use Neon serverless driver (e.g. for Edge/Neon production)
   const pool = new Pool({ connectionString });
-  const adapter = new PrismaNeon(pool);
+  const adapter = new PrismaNeon(pool as any);
   
   return new PrismaClient({ adapter });
 };
