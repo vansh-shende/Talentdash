@@ -1,0 +1,172 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 24px;
+  transition: color var(--transition-fast);
+}
+
+.backLink:hover {
+  color: var(--text-primary);
+}
+
+.card {
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+
+.companyInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.companyName {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.roleTitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.tcContainer {
+  text-align: right;
+}
+
+.tcLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tcValue {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--secondary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.metricBox {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: center;
+}
+
+.metricValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.metricLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.metaItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.metaLabel {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.metaValue {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.verificationBanner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--radius-md);
+  margin-top: 16px;
+}
+
+.verificationBanner span:first-child {
+  font-size: 32px;
+  color: var(--secondary);
+}
+
+.verificationTitle {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.verificationDesc {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .tcContainer {
+    text-align: left;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .metaGrid {
+    grid-template-columns: 1fr;
+  }
+}

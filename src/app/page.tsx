@@ -1,66 +1,92 @@
-import Image from "next/image";
+import Link from "next/link";
 import styles from "./page.module.css";
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className={styles.container}>
+      {/* Navigation Header */}
+      <nav className={styles.nav}>
+        <div className={styles.logo}>
+          <span className="material-symbols-outlined">analytics</span>
+          <span>TalentDash</span>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+        <div className={styles.navLinks}>
+          <Link href="/compensation" className={styles.navItem}>
+            Salaries
+          </Link>
+          <Link href="/levels" className={styles.navItem}>
+            Levels
+          </Link>
+          <Link href="/compare" className={styles.navItem}>
+            Compare
+          </Link>
+          <Link href="/overview" className={styles.btnPrimary}>
+            Go to Dashboard
+          </Link>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <main className={styles.hero}>
+        <h1 className={styles.title}>
+          Democratizing <br />
+          <span className={styles.titleHighlight}>Compensation Intelligence</span>
+        </h1>
+        <p className={styles.subtitle}>
+          Compare salary bands, verify total compensation distributions, and level up your negotiation with crowd-sourced salary data.
+        </p>
+
+        {/* Universal Search Bar */}
+        <div className={`${styles.searchBox} glass-panel`}>
+          <div className={styles.searchInputWrapper}>
+            <span className="material-symbols-outlined">search</span>
+            <input 
+              type="text" 
+              placeholder="Job Title or Company..." 
+              className={styles.input}
+              id="landing-search-job"
             />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+          <div className={styles.searchInputWrapper}>
+            <span className="material-symbols-outlined">location_on</span>
+            <input 
+              type="text" 
+              placeholder="City or 'Remote'..." 
+              className={styles.input}
+              id="landing-search-location"
+            />
+          </div>
+          <Link 
+            href="/compensation" 
+            className={styles.searchBtn}
+            id="landing-search-submit"
+            title="Search Salaries"
           >
-            Documentation
-          </a>
+            <span className="material-symbols-outlined">arrow_forward</span>
+          </Link>
+        </div>
+
+        {/* Quick statistics */}
+        <div className={styles.statsGrid}>
+          <div className={styles.statCard}>
+            <span className={styles.statNum}>104k+</span>
+            <span className={styles.statLabel}>Salary Submissions</span>
+          </div>
+          <div className={styles.statCard}>
+            <span className={styles.statNum}>1,420+</span>
+            <span className={styles.statLabel}>Verified Tech Companies</span>
+          </div>
+          <div className={styles.statCard}>
+            <span className={styles.statNum}>98.4%</span>
+            <span className={styles.statLabel}>Data Accuracy Score</span>
+          </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className={styles.footer}>
+        <p>&copy; {new Date().getFullYear()} TalentDash. Dedicated to salary transparency.</p>
+      </footer>
     </div>
   );
 }
