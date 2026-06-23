@@ -95,21 +95,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </Link>
       </div>
 
-      <div className={styles.userSection}>
-        <div className={styles.avatar}>U</div>
-        <div className={styles.userInfo}>
-          <span className={styles.userName}>Demo User</span>
-          <span className={styles.userRole}>Software Engineer</span>
-        </div>
-        <Link 
-          href="/settings" 
-          id="sidebar-link-settings" 
-          className={styles.settingsBtn}
-          title="Account Settings"
-        >
-          <span className="material-symbols-outlined">settings</span>
-        </Link>
-      </div>
     </aside>
   );
 }

@@ -101,8 +101,8 @@ export default async function OverviewPage() {
       )}
 
       <header className={styles.header}>
-        <h1 className={styles.title}>Welcome back, Demo User</h1>
-        <p className={styles.subtitle}>Here is how your compensation compares to the latest market benchmarks.</p>
+        <h1 className={styles.title}>Compensation Market Intelligence</h1>
+        <p className={styles.subtitle}>Explore and analyze crowdsourced tech salaries and company benchmarks.</p>
       </header>
 
       <div className={styles.grid}>
