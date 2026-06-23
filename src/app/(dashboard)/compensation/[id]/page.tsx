@@ -23,10 +23,51 @@ export default async function CompensationDetailPage({ params }: PageProps) {
   const targetCurrency = cookieStore.get('currency')?.value || 'USD';
 
   // Fetch the record directly from the database
-  const record = await prisma.compensationRecord.findUnique({
-    where: { id },
-    include: { company: true }
-  });
+  let record = null;
+  let dbError = false;
+  try {
+    record = await prisma.compensationRecord.findUnique({
+      where: { id },
+      include: { company: true }
+    });
+  } catch (err: any) {
+    console.error('Database connection error in details page:', err.message);
+    dbError = true;
+  }
+
+  if (dbError) {
+    return (
+      <div className={styles.container}>
+        <Link href="/compensation" className={styles.backLink}>
+          <span className="material-symbols-outlined">arrow_back</span>
+          Back to Salaries
+        </Link>
+        <div style={{
+          backgroundColor: 'rgba(239, 68, 68, 0.08)',
+          border: '1px solid rgba(239, 68, 68, 0.25)',
+          borderRadius: '12px',
+          padding: '24px',
+          marginTop: '16px',
+          color: '#ef4444',
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '16px',
+        }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '32px', color: '#ef4444' }}>database_off</span>
+          <div>
+            <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: 600, color: '#ef4444' }}>Database Connection Offline</h3>
+            <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '13px', lineHeight: '1.5' }}>
+              We could not connect to your PostgreSQL database. This usually means the <strong>DATABASE_URL</strong> environment variable is not configured or is incorrect in your Vercel Project Settings.
+              <br />
+              <span style={{ display: 'inline-block', marginTop: '6px', fontWeight: '500', color: 'var(--text-primary)' }}>
+                Please add the <strong>DATABASE_URL</strong> variable in Vercel, then redeploy the application.
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!record) {
     notFound();

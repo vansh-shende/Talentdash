@@ -30,42 +30,76 @@ export default async function OverviewPage() {
   const targetCurrency = cookieStore.get('currency')?.value || 'USD';
 
   // 1. Fetch overall database metrics
-  const stats = await prisma.compensationRecord.aggregate({
-    _avg: {
-      baseSalary: true,
-      variablePay: true,
-      equity: true,
-      totalCompensation: true
-    },
-    _count: true
-  });
+  let stats: any = { _avg: { baseSalary: null, variablePay: null, equity: null, totalCompensation: null }, _count: 0 };
+  let benchmarks: any[] = [];
+  let recentSubmissions: any[] = [];
+  let dbError = false;
 
-  const avgBase = Number(stats._avg.baseSalary || 0);
-  const avgBonus = Number(stats._avg.variablePay || 0);
-  const avgEquity = Number(stats._avg.equity || 0);
-  const avgTotal = Number(stats._avg.totalCompensation || 0);
+  try {
+    stats = await prisma.compensationRecord.aggregate({
+      _avg: {
+        baseSalary: true,
+        variablePay: true,
+        equity: true,
+        totalCompensation: true
+      },
+      _count: true
+    });
 
-  // 2. Fetch top 4 benchmark companies by median total compensation
-  const benchmarks = await prisma.$queryRaw<any[]>`
-    SELECT 
-      c.name, 
-      COALESCE(percentile_cont(0.5) WITHIN GROUP (ORDER BY r.total_compensation)::numeric, 0)::float as median_tc
-    FROM companies c
-    JOIN salaries r ON c.id = r.company_id
-    GROUP BY c.name
-    ORDER BY median_tc DESC
-    LIMIT 4;
-  `;
+    benchmarks = await prisma.$queryRaw<any[]>`
+      SELECT 
+        c.name, 
+        COALESCE(percentile_cont(0.5) WITHIN GROUP (ORDER BY r.total_compensation)::numeric, 0)::float as median_tc
+      FROM companies c
+      JOIN salaries r ON c.id = r.company_id
+      GROUP BY c.name
+      ORDER BY median_tc DESC
+      LIMIT 4;
+    `;
 
-  // 3. Fetch 4 most recent submissions
-  const recentSubmissions = await prisma.compensationRecord.findMany({
-    orderBy: { submittedAt: 'desc' },
-    take: 4,
-    include: { company: true }
-  });
+    recentSubmissions = await prisma.compensationRecord.findMany({
+      orderBy: { submittedAt: 'desc' },
+      take: 4,
+      include: { company: true }
+    });
+  } catch (err: any) {
+    console.error('Database connection error in Overview:', err.message);
+    dbError = true;
+  }
+
+  const avgBase = Number(stats?._avg?.baseSalary || 0);
+  const avgBonus = Number(stats?._avg?.variablePay || 0);
+  const avgEquity = Number(stats?._avg?.equity || 0);
+  const avgTotal = Number(stats?._avg?.totalCompensation || 0);
 
   return (
     <div className={styles.container}>
+      {dbError && (
+        <div style={{
+          backgroundColor: 'rgba(239, 68, 68, 0.08)',
+          border: '1px solid rgba(239, 68, 68, 0.25)',
+          borderRadius: '12px',
+          padding: '20px',
+          marginBottom: '28px',
+          color: '#ef4444',
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '16px',
+        }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '32px', color: '#ef4444' }}>database_off</span>
+          <div>
+            <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: 600, color: '#ef4444' }}>Database Connection Offline</h3>
+            <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '13px', lineHeight: '1.5' }}>
+              We could not connect to your PostgreSQL database. This usually means the <strong>DATABASE_URL</strong> environment variable is not configured or is incorrect in your Vercel Project Settings.
+              <br />
+              <span style={{ display: 'inline-block', marginTop: '6px', fontWeight: '500', color: 'var(--text-primary)' }}>
+                Please add the <strong>DATABASE_URL</strong> variable in Vercel, then redeploy the application.
+              </span>
+            </p>
+          </div>
+        </div>
+      )}
+
       <header className={styles.header}>
         <h1 className={styles.title}>Welcome back, Demo User</h1>
         <p className={styles.subtitle}>Here is how your compensation compares to the latest market benchmarks.</p>
